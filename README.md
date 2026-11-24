@@ -13,29 +13,45 @@ ERP 100% offline sin integración de proveedores de DTE ni envío de documentos 
 
 ---
 
-## 🚀 Instalación Automática
+## 🚀 INSTALACIÓN 100% AUTOMÁTICA
 
-### macOS / Linux
+### macOS (Apple Silicon - M1/M2/M3)
 
 ```bash
-# 1. Dar permiso de ejecución
-chmod +x install.sh
-
+# 1. Descomprimir el ZIP
 # 2. Ejecutar instalador
-./install.sh
+chmod +x install-auto.sh
+./install-auto.sh
 ```
 
 ### Windows
 
 ```bash
-# Simplemente hacer doble clic en install.bat
-# O ejecutar desde CMD:
-install.bat
+# 1. Descomprimir el ZIP
+# 2. Hacer doble clic en install-auto.bat
+```
+
+### Linux
+
+```bash
+# 1. Descomprimir el ZIP
+# 2. Ejecutar instalador
+chmod +x install-auto.sh
+./install-auto.sh
 ```
 
 ---
 
-## 📦 Instalación Manual
+## 📌 ¿Qué hace el instalador automático?
+
+1. **Verifica Node.js** - Si no está instalado, lo instala automáticamente
+2. **Instala dependencias** - `npm install`
+3. **Crea base de datos** - `npm run db:init`
+4. **Listo para usar** - Te da las credenciales
+
+---
+
+## 📦 Instalación Manual (Alternativa)
 
 ```bash
 cd erp-client-folder
@@ -69,14 +85,14 @@ erp-client/
 ├── package.json      # Config + scripts
 ├── Cargo.toml        # Dependencias Rust
 ├── tauri.conf.json   # Config Tauri
-├── install.sh        # Instalador automático (macOS/Linux)
-├── install.bat       # Instalador automático (Windows)
+├── install-auto.sh   # Instalador automático macOS/Linux
+├── install-auto.bat  # Instalador automático Windows
 └── README.md         # Esta documentación
 ```
 
 ---
 
-## 🔧 Configuración del Usuario
+## 👤 Credenciales por Defecto
 
 Al iniciar, el sistema crea:
 
