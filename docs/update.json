@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "old_version": "0.9.0",
+  "files": [
+    {
+      "url": "https://github.com/nicolasrojas/erp-desktop/releases/download/v1.0.0/erp-desktop-lipigas-anchaual.zip",
+      "sha512": "placeholder-hash",
+      "size": 350000
+    }
+  ],
+  "release_notes": {
+    "en": "Primera versión estable del ERP Desktop para Lipigas Ancahual.\n\nCaracterísticas:\n- ERP 100% offline sin integración DTE\n- Base de datos SQLite local\n- Gestión de productos, ventas y clientes\n- JWT con claims embebidos"
+  },
+  "pub_date": "2026-11-24T14:00:00Z"
+}

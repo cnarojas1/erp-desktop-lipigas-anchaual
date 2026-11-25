@@ -1,0 +1,56 @@
+{
+  "$schema": "https://tauri.app/schema/tauri.config.json",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "devEnvPath": ".env",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "ERP Desktop Lipigas Ancahual",
+    "version": "1.0.3"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "ERP Desktop",
+        "url": "http://localhost:1420",
+        "webviewPreferences": {
+          "web_security": false
+        }
+      }
+    ],
+    "identifiers": [
+      "cl.digitalizaplus.lipigas-anchaual"
+    ],
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "cl.digitalizaplus.lipigas-anchaual",
+      "icon": [
+        "src-tauri/icons/32x32.png",
+        "src-tauri/icons/128x128.png",
+        "src-tauri/icons/180x180.png",
+        "src-tauri/icons/512x525.png"
+      ],
+      "resources": ["sqlite/schema.sql"],
+      "fpm": {
+        "image": "node:18"
+      }
+    },
+    "updater": {
+      "active": true,
+      "endpoints": ["https://github.com/nicolasrojas/erp-desktop-lipigas-anchaual/releases/download/v1.0.3/update.json"]
+    }
+  },
+  "allowlist": {
+    "all": false,
+    "fs": { "all": true },
+    "http": { "all": true },
+    "dialog": { "all": true },
+    "shell": { "all": true },
+    "process": { "all": true },
+    "updater": { "all": true },
+    "path": { "all": true }
+  }
+}
