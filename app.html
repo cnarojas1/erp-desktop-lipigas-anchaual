@@ -61,7 +61,7 @@
         <h1>🚀 ERP Desktop</h1>
         <h2>Lipigas Ancahual - 100% Offline</h2>
         
-        <a href="#" class="btn" onclick="openApp()">Abrir Aplicación</a>
+        <button id="open-button" disabled class="btn" onclick="openApp()">Abrir Aplicación</button>
         
         <div class="info">
             <p><strong>📱 Accede desde cualquier dispositivo:</strong></p>
@@ -92,7 +92,8 @@
                 <h1 style="color: #333;">🔐 Iniciar Sesión</h1>
                 <input type="text" id="username" placeholder="Usuario" value="admin" style="width: 100%; max-width: 400px;">
                 <input type="password" id="password" placeholder="Contraseña" value="admin123" style="width: 100%; max-width: 400px; margin-top: 10px;">
-                <button onclick="handleLogin()" style="width: 100%; max-width: 400px; margin-top: 10px;">Entrar</button>
+                <p id="login-status" role="alert" style="color: #b00020;">Preparando base de datos local…</p>
+                <button id="login-button" disabled onclick="handleLogin()" style="width: 100%; max-width: 400px; margin-top: 10px;">Entrar</button>
             </div>
             
             <div id="dashboard" class="hidden">
@@ -161,19 +162,30 @@
         }
         
         async function handleLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const users = await localQuery('SELECT * FROM users WHERE username = ? AND password_hash = ?', [username, password]);
-            
-            if (users.length) {
-                const user = users[0];
-                const token = LocalAuth.generateToken(user.id, 'default', user.role);
-                localStorage.setItem('token', token);
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                document.getElementById('userName').textContent = user.full_name || user.username;
-            } else {
-                alert('❌ Usuario o contraseña incorrectos');
+            const button = document.getElementById('login-button');
+            button.disabled = true;
+            document.getElementById('login-status').textContent = '';
+            try {
+                await ready;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const users = await localQuery('SELECT * FROM users WHERE username = ? AND password_hash = ?', [username, password]);
+
+                if (users.length) {
+                    const user = users[0];
+                    const token = LocalAuth.generateToken(user.id, 'default', user.role);
+                    localStorage.setItem('token', token);
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    document.getElementById('userName').textContent = user.full_name || user.username;
+                } else {
+                    localStorage.removeItem('token');
+                    document.getElementById('login-status').textContent = 'Usuario o contraseña incorrectos';
+                }
+            } catch (error) {
+                document.getElementById('login-status').textContent = 'No se pudo iniciar sesión: ' + error.message;
+            } finally {
+                button.disabled = false;
             }
         }
         
@@ -211,10 +223,21 @@
                 await localExec('INSERT INTO users (id, username, email, password_hash, full_name, role) VALUES (?, ?, ?, ?, ?, ?)',
                     ['default-admin', 'admin', 'admin@localhost', 'admin123', 'Administrador', 'admin']);
             }
-            loadProducts();
+            await loadProducts();
         };
         
-        init().catch(err => console.error('Init error:', err));
+        Object.assign(window, { openApp, handleLogin, showSection, addProduct, createSale, addCustomer });
+        document.getElementById('open-button').disabled = false;
+        const ready = init();
+        ready.then(() => {
+            document.getElementById('login-status').textContent = '';
+            document.getElementById('login-button').disabled = false;
+        }).catch(error => {
+            document.getElementById('login-status').textContent = 'No se pudo preparar la base local: ' + error.message;
+        });
+        document.getElementById('password').addEventListener('keydown', event => {
+            if (event.key === 'Enter' && !document.getElementById('login-button').disabled) handleLogin();
+        });
         
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

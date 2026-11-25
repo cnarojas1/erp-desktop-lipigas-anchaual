@@ -31,36 +31,45 @@ export class LocalAuth {
 // IndexedDB helper for web/PWA fallback
 let db = null;
 const DB_NAME = 'ERP_Lipigas_Ancahual';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+let opening;
 
 async function openIDB() {
     if (db) return db;
-    return new Promise((resolve, reject) => {
+    if (opening) return opening;
+    opening = new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
         request.onerror = () => reject(request.error);
+        request.onblocked = () => reject(new Error('Cierra las otras pestañas de la aplicación y recarga.'));
         request.onsuccess = () => {
             db = request.result;
+            db.onversionchange = () => { db.close(); db = null; opening = null; };
             resolve(db);
         };
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
-            // Create object stores
-            if (!db.objectStoreNames.contains('users')) {
-                db.createObjectStore('users', 'index');
+            // Add missing schema without replacing existing stores or records.
+            for (const name of ['users', 'products', 'sales', 'customers', 'settings']) {
+                if (!db.objectStoreNames.contains(name)) {
+                    db.createObjectStore(name, { keyPath: name === 'settings' ? 'key' : 'id' });
+                }
             }
-            if (!db.objectStoreNames.contains('products')) {
-                db.createObjectStore('products', 'auto');
-            }
-            if (!db.objectStoreNames.contains('sales')) {
-                db.createObjectStore('sales', 'auto');
-            }
-            if (!db.objectStoreNames.contains('customers')) {
-                db.createObjectStore('customers', 'auto');
-            }
-            if (!db.objectStoreNames.contains('settings')) {
-                db.createObjectStore('settings', 'key');
+            const users = request.transaction.objectStore('users');
+            if (!users.indexNames.contains('username')) {
+                users.createIndex('username', 'username', { unique: false });
             }
         };
+    }).catch(error => { opening = null; throw error; });
+    return opening;
+}
+
+// Resolve only after the transaction commits, not when the request is created.
+function completed(request) {
+    return new Promise((resolve, reject) => {
+        const tx = request.transaction;
+        tx.oncomplete = () => resolve(request.result);
+        tx.onabort = () => reject(tx.error || request.error || new Error('Transacción cancelada'));
+        tx.onerror = () => reject(tx.error || request.error);
     });
 }
 
@@ -84,7 +93,7 @@ export async function initDatabase() {
             return { success: true };
         } catch (e) {
             console.error('Database init error:', e);
-            return { success: false, error: e.message };
+            throw e;
         }
     }
 }
@@ -120,27 +129,29 @@ async function queryIDB(sql, params = []) {
         if (params.length > 0) {
             // WHERE username = ?
             const index = store.index('username');
-            return index.getAll(params);
+            const users = await completed(index.getAll(params[0]));
+            return normalizedSql.includes('password_hash')
+                ? users.filter(user => user.password_hash === params[1]) : users;
         }
-        return store.getAll();
+        return completed(store.getAll());
     }
     
     // SELECT products
     if (normalizedSql.startsWith('select') && normalizedSql.includes('from products')) {
         const store = db.transaction('products').objectStore('products');
-        return store.getAll();
+        return completed(store.getAll());
     }
     
     // SELECT sales
     if (normalizedSql.startsWith('select') && normalizedSql.includes('from sales')) {
         const store = db.transaction('sales').objectStore('sales');
-        return store.getAll();
+        return completed(store.getAll());
     }
     
     // SELECT customers
     if (normalizedSql.startsWith('select') && normalizedSql.includes('from customers')) {
         const store = db.transaction('customers').objectStore('customers');
-        return store.getAll();
+        return completed(store.getAll());
     }
     
     return [];
@@ -162,7 +173,7 @@ async function execIDB(sql, params = []) {
             role: params[5],
             created_at: new Date().toISOString()
         };
-        await store.add(user);
+        await completed(store.keyPath === null ? store.add(user, user.id) : store.add(user));
         return { success: true };
     }
     
@@ -175,7 +186,7 @@ async function execIDB(sql, params = []) {
             price: params[1] || 0,
             created_at: new Date().toISOString()
         };
-        await store.add(product);
+        await completed(store.keyPath === null ? store.add(product, product.id) : store.add(product));
         return { success: true };
     }
     
@@ -188,7 +199,7 @@ async function execIDB(sql, params = []) {
             status: params[1] || 'draft',
             created_at: new Date().toISOString()
         };
-        await store.add(sale);
+        await completed(store.keyPath === null ? store.add(sale, sale.id) : store.add(sale));
         return { success: true };
     }
     
@@ -200,7 +211,7 @@ async function execIDB(sql, params = []) {
             name: params[0],
             created_at: new Date().toISOString()
         };
-        await store.add(customer);
+        await completed(store.keyPath === null ? store.add(customer, customer.id) : store.add(customer));
         return { success: true };
     }
     
@@ -217,7 +228,7 @@ async function execIDB(sql, params = []) {
             created_at: new Date().toISOString()
         };
         try {
-            await store.add(user);
+            await completed(store.keyPath === null ? store.add(user, user.id) : store.add(user));
         } catch (e) {
             // Already exists - ignore
         }

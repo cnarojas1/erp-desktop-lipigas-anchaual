@@ -1,28 +1,25 @@
-const CACHE_NAME = 'erp-lipigas-v1.0.4';
+const CACHE_NAME = 'erp-lipigas-login-v2';
 const urlsToCache = [
-  './',
-  './app.html',
-  './index.html',
-  './manifest.json',
-  './src/main.js',
-  './sqlite/schema.sql',
-  './scripts/init-db.js'
+  './', './app.html', './index.html', './manifest.json', './src/main.js',
+  './icon-192.png', './icon.svg'
 ];
 
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function(cache) {
-        return cache.addAll(urlsToCache);
-      })
-  );
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME)
+    .then(cache => cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
-self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        return response || fetch(event.request);
-      })
-  );
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(
+    keys.filter(key => key.startsWith('erp-lipigas-') && key !== CACHE_NAME)
+      .map(key => caches.delete(key))
+  )).then(() => self.clients.claim()));
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
+  event.respondWith(caches.open(CACHE_NAME).then(async cache =>
+    (await cache.match(event.request)) || fetch(event.request)
+  ));
 });
