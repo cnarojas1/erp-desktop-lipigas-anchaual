@@ -1,0 +1,16 @@
+{
+  "name": "ERP Desktop Lipigas Ancahual",
+  "short_name": "ERP",
+  "description": "ERP 100% offline para Lipigas Ancahual",
+  "start_url": "./app.html",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#007bff",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
