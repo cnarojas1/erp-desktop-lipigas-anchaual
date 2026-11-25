@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>ERP Desktop Lipigas Ancahual</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .container { 
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        h2 { color: #666; margin-bottom: 30px; font-weight: normal; }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: #0056b3; transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #545b62; }
+        .info { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; color: #495057; text-align: left; }
+        .credential { background: #0d6efd; padding: 15px; border-radius: 10px; margin: 15px 0; }
+        .mobile { color: #28a745; font-weight: bold; }
+        .hidden { display: none; }
+        @media (max-width: 600px) { .container { padding: 25px; } }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing">
+        <h1>🚀 ERP Desktop</h1>
+        <h2>Lipigas Ancahual - 100% Offline</h2>
+        
+        <a href="#" class="btn" onclick="openApp()">Abrir Aplicación</a>
+        
+        <div class="info">
+            <p><strong>📱 Accede desde cualquier dispositivo:</strong></p>
+            <ul style="margin: 15px 0;">
+                <li>✅ PC, Mac, Windows</li>
+                <li>✅ iPhone, Android</li>
+                <li>✅ Tabletas</li>
+                <li class="mobile">✅ PWA - Añadir a pantalla de inicio</li>
+            </ul>
+            
+            <div class="credential">
+                <h3>Credenciales por defecto:</h3>
+                <p><strong>Usuario:</strong> admin</p>
+                <p><strong>Contraseña:</strong> admin123</p>
+            </div>
+            
+            <p style="color: #666; font-size: 14px;">
+                La aplicación funciona completamente offline después del primer acceso.
+                <br><strong>Requiere navegador compatible con PWA.</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- App Container (hidden initially) -->
+    <div id="app" class="hidden">
+        <div style="background: white; border-radius: 10px; padding: 20px; max-width: 800px; width: 100%; min-height: 600px;">
+            <!-- Login Screen -->
+            <div id="login-screen">
+                <h1 style="color: #333;">🔐 Iniciar Sesión</h1>
+                <input type="text" id="username" placeholder="Usuario" value="admin" style="width: 100%; max-width: 400px;">
+                <input type="password" id="password" placeholder="Contraseña" value="admin123" style="width: 100%; max-width: 400px; margin-top: 10px;">
+                <button onclick="handleLogin()" style="width: 100%; max-width: 400px; margin-top: 10px;">Entrar</button>
+            </div>
+            
+            <!-- Dashboard -->
+            <div id="dashboard" class="hidden">
+                <h1 style="color: #333;">🏢 Bienvenido, <span id="userName">Admin</span></h1>
+                
+                <div style="margin: 20px 0;">
+                    <button onclick="showSection('products')" style="margin-right: 10px;">📦 Productos</button>
+                    <button onclick="showSection('sales')" style="margin-right: 10px;">💰 Ventas</button>
+                    <button onclick="showSection('customers')">👥 Clientes</button>
+                </div>
+                
+                <!-- Products Section -->
+                <div id="products-section">
+                    <h2 style="color: #333; margin-bottom: 10px;">📦 Productos</h2>
+                    <input type="text" id="new-product-name" placeholder="Nombre del producto" style="width: 100%; max-width: 300px;">
+                    <input type="number" id="new-product-price" placeholder="Precio" step="0.01" style="width: 100%; max-width: 300px; margin-top: 10px;">
+                    <button onclick="addProduct()" style="margin-top: 10px;">Agregar Producto</button>
+                    <table style="width: 100%; margin-top: 15px;">
+                        <tr><th>Nombre</th><th>Precio</th></tr>
+                        <tbody id="products-list"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Sales Section -->
+                <div id="sales-section" class="hidden" style="margin-top: 20px;">
+                    <h2 style="color: #333; margin-bottom: 10px;">💰 Ventas</h2>
+                    <button onclick="createSale()" style="margin-bottom: 10px;">Crear Venta</button>
+                    <table style="width: 100%;">
+                        <tr><th>Fecha</th><th>Total</th></tr>
+                        <tbody id="sales-list"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Customers Section -->
+                <div id="customers-section" class="hidden" style="margin-top: 20px;">
+                    <h2 style="color: #333; margin-bottom: 10px;">👥 Clientes</h2>
+                    <input type="text" id="new-customer-name" placeholder="Nombre del cliente" style="width: 100%; max-width: 300px;">
+                    <button onclick="addCustomer()" style="margin-top: 10px;">Agregar Cliente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { LocalAuth, localQuery, localExec, initDatabase } from './src/main.js';
+        
+        // Open App
+        function openApp() {
+            document.getElementById('landing').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+        }
+        
+        // Show/Hide sections
+        function showSection(section) {
+            document.querySelectorAll('[id$="-section"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(section + '-section').classList.remove('hidden');
+            
+            if (section === 'products') loadProducts();
+            if (section === 'sales') loadSales();
+        }
+        
+        // Load data
+        async function loadProducts() {
+            const products = await localQuery('SELECT * FROM products ORDER BY name');
+            const list = document.getElementById('products-list');
+            list.innerHTML = products.map(p => `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>$${p.price}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="2">Sin productos</td></tr>';
+        }
+        
+        async function loadSales() {
+            const sales = await localQuery('SELECT * FROM sales ORDER BY created_at DESC LIMIT 10');
+            const list = document.getElementById('sales-list');
+            list.innerHTML = sales.map(s => `
+                <tr>
+                    <td>${new Date(s.created_at).toLocaleString()}</td>
+                    <td>$${s.total}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="2">Sin ventas</td></tr>';
+        }
+        
+        // Login
+        async function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const users = await localQuery(
+                'SELECT * FROM users WHERE username = ? AND password_hash = ?',
+                [username, password]
+            );
+            
+            if (users.length) {
+                const user = users[0];
+                const token = LocalAuth.generateToken(user.id, 'default', user.role);
+                localStorage.setItem('token', token);
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('userName').textContent = user.full_name || user.username;
+            } else {
+                alert('❌ Usuario o contraseña incorrectos');
+            }
+        }
+        
+        // Add product
+        async function addProduct() {
+            const name = document.getElementById('new-product-name').value;
+            const price = parseFloat(document.getElementById('new-product-price').value) || 0;
+            
+            if (name) {
+                await localExec(
+                    'INSERT INTO products (id, name, sku, price, is_active, created_at) VALUES (?, ?, ?, ?, 1, ?)',
+                    [crypto.randomUUID(), name, name.toUpperCase(), price, new Date().toISOString()]
+                );
+                document.getElementById('new-product-name').value = '';
+                document.getElementById('new-product-price').value = '';
+                loadProducts();
+            }
+        }
+        
+        // Create sale
+        async function createSale() {
+            await localExec(
+                'INSERT INTO sales (id, total, status, created_at) VALUES (?, ?, ?, ?)',
+                [crypto.randomUUID(), 0, 'draft', new Date().toISOString()]
+            );
+            loadSales();
+        }
+        
+        // Add customer
+        async function addCustomer() {
+            const name = document.getElementById('new-customer-name').value;
+            if (name) {
+                await localExec(
+                    'INSERT INTO customers (id, name, created_at) VALUES (?, ?, ?)',
+                    [crypto.randomUUID(), name, new Date().toISOString()]
+                );
+                document.getElementById('new-customer-name').value = '';
+            }
+        }
+        
+        // Initialize IndexedDB
+        const init = async () => {
+            await initDatabase();
+            
+            // Check if admin exists, if not create default user
+            const users = await localQuery('SELECT * FROM users WHERE username = ?', ['admin']);
+            if (users.length === 0) {
+                await localExec(
+                    'INSERT INTO users (id, username, email, password_hash, full_name, role) VALUES (?, ?, ?, ?, ?, ?)',
+                    ['default-admin', 'admin', 'admin@localhost', 'admin123', 'Administrador', 'admin']
+                );
+                console.log('✅ Usuario admin creado');
+            }
+            
+            loadProducts();
+        };
+        
+        // Initialize
+        init().catch(err => console.error('Init error:', err));
+        
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW not supported'));
+            });
+        }
+    </script>
+</body>
+</html>

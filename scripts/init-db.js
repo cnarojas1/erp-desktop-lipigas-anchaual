@@ -4,9 +4,13 @@
  * Run: node scripts/init-db.js
  */
 
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const fs = require('fs');
+import sqlite3Pkg from 'sqlite3';
+const { Database, verbose } = sqlite3Pkg;
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Get database path
 const dbDir = path.join(process.env.HOME || '.', 'Documents', 'erp-client');
@@ -22,7 +26,7 @@ const schemaPath = path.join(__dirname, '..', 'sqlite', 'schema.sql');
 const schema = fs.readFileSync(schemaPath, 'utf8');
 
 // Create database and initialize
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new Database(dbPath, (err) => {
     if (err) {
         console.error('Error creating database:', err.message);
         process.exit(1);

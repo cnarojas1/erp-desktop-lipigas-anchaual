@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS sale_items (
 );
 
 -- Stock movements
-CREATE TABLE IF NOTestock_movements (
+CREATE TABLE IF NOT EXISTS stock_movements (
     id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
     product_id TEXT REFERENCES products(id),
     type TEXT CHECK(type IN ('in', 'out', 'adjustment')),

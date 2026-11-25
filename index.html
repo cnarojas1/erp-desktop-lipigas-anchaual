@@ -3,250 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERP Desktop - Lipigas Ancahual</title>
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>ERP Desktop Lipigas Ancahual</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
             padding: 20px;
-            background: #f5f5f5;
         }
-        .container { 
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        input, select, textarea {
-            padding: 8px;
-            margin: 5px 0;
+        .container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
             width: 100%;
-            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        button {
-            padding: 10px 20px;
+        h1 { color: #333; margin-bottom: 10px; }
+        h2 { color: #666; margin-bottom: 30px; font-weight: normal; }
+        .btn {
             background: #007bff;
             color: white;
             border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 10px;
             cursor: pointer;
-            margin: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
-        button:hover {
-            background: #0056b3;
+        .btn:hover { background: #0056b3; transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #545b62; }
+        .info { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; color: #495057; }
+        .credential { background: #0d6efd; padding: 15px; border-radius: 10px; margin: 15px 0; }
+        .mobile { color: #28a745; font-weight: bold; }
+        @media (max-width: 600px) {
+            .container { padding: 25px; }
         }
-        .hidden { display: none; }
-        .card { 
-            border: 1px solid #ddd;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 4px;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #f8f9fa; }
-        .update-btn { background: #28a745; }
-        .update-btn:hover { background: #218838; }
-        .nav { margin: 20px 0; }
-        .nav button { display: inline-block; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>ERP Desktop - Lipigas Ancahual</h1>
+        <h1>🚀 ERP Desktop</h1>
+        <h2>Lipigas Ancahual - 100% Offline</h2>
         
-        <!-- Login Screen -->
-        <div id="login-screen">
-            <h2>Iniciar Sesión / Registrarse</h2>
-            <input type="text" id="username" placeholder="Usuario">
-            <input type="email" id="email" placeholder="Email (opcional)">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="handleLogin()">Entrar</button>
-            <button onclick="handleRegister()">Registrar</button>
-        </div>
+        <a href="index.html" class="btn">Abrir Aplicación</a>
         
-        <!-- Main Dashboard -->
-        <div id="dashboard" class="hidden">
-            <h2>Bienvenido, <span id="userName"></span></h2>
-            <p><strong>Empresa:</strong> <span id="companyName">Lipigas Ancahual</span></p>
+        <div class="info">
+            <p><strong>📱 Accede desde cualquier dispositivo:</strong></p>
+            <ul style="text-align: left; margin: 15px 0;">
+                <li>✅ PC, Mac, Windows</li>
+                <li>✅ iPhone, Android</li>
+                <li>✅ Tabletas</li>
+                <li class="mobile">✅ PWA - Añadir a pantalla de inicio</li>
+            </ul>
             
-            <div style="margin: 20px 0;">
-                <button onclick="showProducts()">Gestión de Productos</button>
-                <button onclick="showSales()">Gestión de Ventas</button>
-                <button onclick="showCustomers()">Clientes</button>
+            <div class="credential">
+                <h3>Credenciales por defecto:</h3>
+                <p><strong>Usuario:</strong> admin</p>
+                <p><strong>Contraseña:</strong> admin123</p>
             </div>
             
-            <!-- Update Section -->
-            <div class="card">
-                <h3>Actualizaciones</h3>
-                <p>¿Quieres descargar la última versión?</p>
-                <button class="update-btn" onclick="handleDownloadLatest()">Descargar desde GitHub</button>
-                <button onclick="checkForUpdates()">Verificar actualizaciones</button>
-                <p id="update-status" style="font-size: 12px; color: #666; margin-top: 10px;"></p>
-            </div>
-            
-            <!-- Products Section -->
-            <div id="products-section">
-                <h3>Productos</h3>
-                <input type="text" id="new-product-name" placeholder="Nombre producto">
-                <input type="number" id="new-product-price" placeholder="Precio" step="0.01">
-                <button onclick="addProduct()">Agregar</button>
-                <table>
-                    <tr><th>Nombre</th><th>Precio</th><th>Acciones</th></tr>
-                    <tbody id="products-list"></tbody>
-                </table>
-            </div>
-            
-            <!-- Sales Section -->
-            <div id="sales-section" class="hidden">
-                <h3>Ventas</h3>
-                <input type="text" id="new-sale-desc" placeholder="Descripción">
-                <button onclick="createSale()">Crear Venta</button>
-                <table>
-                    <tr><th>Fecha</th><th>Total</th><th>Acciones</th></tr>
-                    <tbody id="sales-list"></tbody>
-                </table>
-            </div>
-            
-            <!-- Customers Section -->
-            <div id="customers-section" class="hidden">
-                <h3>Clientes</h3>
-                <input type="text" id="new-customer-name" placeholder="Nombre cliente">
-                <button onclick="addCustomer()">Agregar</button>
-            </div>
+            <p style="color: #666; font-size: 14px;">
+                La aplicación funciona completamente offline después del primer acceso.
+                <br><strong>Requiere navegador compatible con PWA.</strong>
+            </p>
         </div>
     </div>
 
-    <script type="module">
-        import { LocalAuth, localQuery, localExec, initDatabase, checkForUpdates, downloadUpdate, relaunch } from './src/main.js';
-        
-        // Initialize
-        await initDatabase();
-        
-        function show(section) {
-            document.querySelectorAll('[id$="-section"]').forEach(el => el.classList.add('hidden'));
-            document.getElementById(section).classList.remove('hidden');
-        }
-        
-        function showProducts() {
-            show('products-section');
-            loadProducts();
-        }
-        
-        function showSales() {
-            show('sales-section');
-            loadSales();
-        }
-        
-        function showCustomers() {
-            show('customers-section');
-        }
-        
-        async function loadProducts() {
-            const products = await localQuery('SELECT * FROM products WHERE is_active = 1 ORDER BY name');
-            const list = document.getElementById('products-list');
-            list.innerHTML = products.map(p => `
-                <tr>
-                    <td>${p.name}</td>
-                    <td>$${p.price}</td>
-                    <td><button>Editar</button></td>
-                </tr>
-            `).join('');
-        }
-        
-        async function loadSales() {
-            const sales = await localQuery('SELECT * FROM sales ORDER BY created_at DESC LIMIT 10');
-            const list = document.getElementById('sales-list');
-            list.innerHTML = sales.map(s => `
-                <tr>
-                    <td>${new Date(s.created_at).toLocaleString()}</td>
-                    <td>$${s.total}</td>
-                    <td><button>Ver</button></td>
-                </tr>
-            `).join('');
-        }
-        
-        async function handleLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const user = await localQuery('SELECT * FROM users WHERE username = ? AND password_hash = ?', [username, password]);
-            if (user.length) {
-                const u = user[0];
-                const token = LocalAuth.generateToken(u.id, 'default', u.role);
-                localStorage.setItem('token', token);
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                document.getElementById('userName').textContent = u.full_name || u.username;
-            } else {
-                alert('Usuario o contraseña incorrectos');
-            }
-        }
-        
-        async function handleRegister() {
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            await localExec('INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)', 
-                [username, email, password, 'user']);
-            alert('Usuario creado. Inicia sesión.');
-        }
-        
-        async function addProduct() {
-            const name = document.getElementById('new-product-name').value;
-            const price = parseFloat(document.getElementById('new-product-price').value) || 0;
-            await localExec('INSERT INTO products (name, price) VALUES (?, ?)', [name, price]);
-            document.getElementById('new-product-name').value = '';
-            document.getElementById('new-product-price').value = '';
-            loadProducts();
-        }
-        
-        async function createSale() {
-            await localExec('INSERT INTO sales (total, status) VALUES (0, "draft")', []);
-            loadSales();
-        }
-        
-        async function addCustomer() {
-            const name = document.getElementById('new-customer-name').value;
-            await localExec('INSERT INTO customers (name) VALUES (?)', [name]);
-            document.getElementById('new-customer-name').value = '';
-        }
-        
-        // Update Functions
-        async function checkForUpdates() {
-            const status = document.getElementById('update-status');
-            status.textContent = 'Verificando actualizaciones...';
-            
-            try {
-                const result = await checkForUpdates();
-                if (result?.available) {
-                    status.textContent = `Nueva versión disponible: v${result.version}`;
-                } else {
-                    status.textContent = '¡Ya tienes la última versión!';
-                }
-            } catch (e) {
-                status.textContent = 'Error al verificar: ' + e.message;
-            }
-        }
-        
-        async function handleDownloadLatest() {
-            const status = document.getElementById('update-status');
-            status.textContent = 'Descargando actualización...';
-            
-            try {
-                const result = await downloadUpdate();
-                if (result?.downloaded) {
-                    status.textContent = 'Actualización descargada. Reiniciando...';
-                    await relaunch();
-                } else {
-                    // Fallback: open GitHub releases page
-                    window.open('https://github.com/nicolasrojas/erp-desktop/releases/latest', '_blank');
-                    status.textContent = 'Abriendo GitHub Releases...';
-                }
-            } catch (e) {
-                status.textContent = 'Error: ' + e.message;
-                // Fallback: open GitHub releases page
-                window.open('https://github.com/nicolasrojas/erp-desktop/releases/latest', '_blank');
-            }
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW not supported'));
+            });
         }
     </script>
 </body>
